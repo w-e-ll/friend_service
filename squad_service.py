@@ -17,7 +17,7 @@ incoming_heroes_list = [
 
 class Hero:
     """
-    Describes a hero, his main attributes
+    Describes a hero, his main properties
     """
     def __init__(self, properties):
         self.name = properties["name"]
@@ -74,8 +74,7 @@ class SquadService:
     """
     Main service which describes the fight.
     Service checks who is stronger based on power level of a heroes.
-    Provides main functions to heroes:
-    - attack, attack back, start the fight
+    Provides start the fight method.
     """
     @staticmethod
     def start_the_fight(friends, avengers):
@@ -143,7 +142,7 @@ class SquadService:
 
 class Main:
     """
-    Provides main steps to achieve goal:
+    Provides main steps to achieve victory:
     - create heroes
     - create friends squad
     - create avengers squad
