@@ -19,11 +19,30 @@ class Hero:
     """
     Describes a hero, his main attributes
     """
-    def __init__(self, name: str, status: str, power, goal: str):
-        self.name = name
-        self.status = status
-        self.power = power
-        self.goal = goal
+    def __init__(self, properties):
+        self.name = properties["name"]
+        self.status = properties["status"]
+        self.power = properties["power"]
+        self.goal = properties["goal"]
+
+    @staticmethod
+    def power_level(hero_acting: int, hero_resting: int) -> bool:
+        # checks who is stronger
+        return hero_acting > hero_resting
+
+    @staticmethod
+    def attack(hero_acting: int, hero_resting: int) -> dict:
+        # makes an attack, counts power and based on power updates hero status
+        new_resting_power = hero_resting - hero_acting
+        new_resting_status = "dead" if new_resting_power <= 0 else "injured"
+        return {"new_power": new_resting_power, "new_status": new_resting_status}
+
+    @staticmethod
+    def attack_back(hero_acting: int, hero_resting: int) -> dict:
+        # gives back to acting hero, counts power and based on power updates hero status
+        new_acting_power = hero_acting - hero_resting
+        new_acting_status = "dead" if new_acting_power <= 0 else "injured"
+        return {"new_power": new_acting_power, "new_status": new_acting_status}
 
 
 class Squad:
@@ -58,30 +77,16 @@ class SquadService:
     Provides main functions to heroes:
     - attack, attack back, start the fight
     """
-
     @staticmethod
-    def power_level(hero_acting: int, hero_resting: int) -> bool:
-        # checks who is stronger
-        return hero_acting > hero_resting
-
-    @staticmethod
-    def attack(hero_acting: int, hero_resting: int) -> dict:
-        # makes an attack, counts power and based on power updates hero status
-        new_resting_power = hero_resting - hero_acting
-        new_resting_status = "dead" if new_resting_power <= 0 else "injured"
-        return {"new_power": new_resting_power, "new_status": new_resting_status}
-
-    @staticmethod
-    def attack_back(hero_acting: int, hero_resting: int) -> dict:
-        # gives back to acting hero, counts power and based on power updates hero status
-        new_acting_power = hero_acting - hero_resting
-        new_acting_status = "dead" if new_acting_power <= 0 else "injured"
-        return {"new_power": new_acting_power, "new_status": new_acting_status}
-
-    def start_the_fight(self, friends, avengers):
+    def start_the_fight(friends, avengers):
         # fight process, while we have friends
         can_fight = True
+        count = 0
         while can_fight:
+
+            if count == len(avengers):
+                can_fight = False
+                break
 
             for f_hero in friends:
                 if f_hero.get("status") != "dead":
@@ -90,15 +95,6 @@ class SquadService:
                     friend = f_hero
                     print("friend :", friend)
 
-                    count = 0
-                    for av in avengers:
-                        if av.get("status") == "dead":
-                            count += 1
-
-                    if count == len(avengers):
-                        can_fight = False
-                        break
-
                     for a_hero in avengers:
                         if a_hero.get("status") != "dead":
                             if friend.get("status") == "dead":
@@ -106,37 +102,38 @@ class SquadService:
                             avenger = a_hero
                             print("avenger :", avenger)
 
-                            eq = self.power_level(friend["power"], avenger["power"])
+                            eq = Hero.power_level(friend["power"], avenger["power"])
                             print("friend is able to beat avenger? ", eq)
 
                             if eq is True and avenger.get("status") != "dead":
                                 print("friend makes attack")
-                                damaged_hero = self.attack(friend.get("power"), avenger.get("power"))
+                                damaged_hero = Hero.attack(friend.get("power"), avenger.get("power"))
                                 avenger["power"] = damaged_hero.get("new_power")
                                 avenger["status"] = damaged_hero.get("new_status")
 
                                 print("avenger was killed by a friend: ", avenger)
                                 if avenger.get("status") == "dead":
+                                    count += 1
                                     break
 
                             elif eq is False and avenger.get("status") != "dead":
                                 while friend.get("status") != "dead" or avenger.get("status") != "dead":
                                     print("avenger is stronger, but friend knows if he will beat first, he will win this battle")
-                                    damaged_hero = self.attack(friend.get("power"), avenger.get("power"))
+                                    damaged_hero = Hero.attack(friend.get("power"), avenger.get("power"))
                                     avenger["power"] = damaged_hero.get("new_power")
                                     avenger["status"] = damaged_hero.get("new_status")
                                     print("damaged_avenger: ", damaged_hero)
 
                                     if avenger.get("status") == "dead":
+                                        count += 1
                                         break
 
-                                    damaged_acting_hero = self.attack_back(friend.get("power"), avenger.get("power"))
+                                    damaged_acting_hero = Hero.attack_back(friend.get("power"), avenger.get("power"))
                                     friend["power"] = damaged_acting_hero.get("new_power")
                                     friend["status"] = damaged_acting_hero.get("new_status")
 
                                     if friend.get("status") == "dead":
                                         break
-
                         else:
                             continue
 
@@ -169,8 +166,8 @@ class Main:
     def create_heroes(heroes) -> list:
         # initializes heroes from given incoming heroes list
         heroes_list = []
-        for i in heroes:
-            hero = Hero(i["name"], i["status"], i["power"], i["goal"])
+        for hero in heroes:
+            hero = Hero(hero)
             heroes_list.append(hero.__dict__)
         return heroes_list
 
