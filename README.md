@@ -1,6 +1,6 @@
 # Squad Service
 
-In life, bad heroes always fail.
+In life, bad heroes always win.
 
 The positive hero has a code of honor through which he simply does not want to step over so as not to upset his own balance of respect for himself.
 
