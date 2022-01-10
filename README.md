@@ -1,4 +1,4 @@
-# Squad Service
+# Friend Service
 
 In life, bad heroes always win.
 
